@@ -1,0 +1,130 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+// Function to print bin results
+void printBins(int bin[], int n) {
+    int i, count = 0;
+    for (i = 0; i < n; i++) {
+        if (bin[i] != 0) {
+            printf("Bin %d remaining capacity: %d\n", i + 1, bin[i]);
+            count++;
+        }
+    }
+    printf("Total bins used: %d\n\n", count);
+}
+
+// ---------------- FIRST FIT ----------------
+void firstFit(int items[], int n, int capacity) {
+    int bin[MAX] = {0};
+    int i, j;
+
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            if (bin[j] >= items[i]) {
+                bin[j] -= items[i];
+                break;
+            }
+        }
+        if (j == n) {
+            bin[i] = capacity - items[i];
+        }
+    }
+
+    printf("\n--- First Fit ---\n");
+    printBins(bin, n);
+}
+
+// ---------------- BEST FIT ----------------
+void bestFit(int items[], int n, int capacity) {
+    int bin[MAX] = {0};
+    int i, j;
+
+    for (i = 0; i < n; i++) {
+        int bestIdx = -1;
+        for (j = 0; j < n; j++) {
+            if (bin[j] >= items[i]) {
+                if (bestIdx == -1 || bin[j] < bin[bestIdx]) {
+                    bestIdx = j;
+                }
+            }
+        }
+
+        if (bestIdx != -1) {
+            bin[bestIdx] -= items[i];
+        } else {
+            bin[i] = capacity - items[i];
+        }
+    }
+
+    printf("\n--- Best Fit ---\n");
+    printBins(bin, n);
+}
+
+// Sorting function (Descending)
+void sortDescending(int arr[], int n) {
+    int i, j, temp;
+    for (i = 0; i < n - 1; i++) {
+        for (j = i + 1; j < n; j++) {
+            if (arr[i] < arr[j]) {
+                temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+    }
+}
+
+// -------------- FIRST FIT DECREASING --------------
+void firstFitDecreasing(int items[], int n, int capacity) {
+    int sorted[MAX];
+    int i;
+
+    // Copy items
+    for (i = 0; i < n; i++)
+        sorted[i] = items[i];
+
+    // Sort in decreasing order
+    sortDescending(sorted, n);
+
+    int bin[MAX] = {0};
+    int j;
+
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            if (bin[j] >= sorted[i]) {
+                bin[j] -= sorted[i];
+                break;
+            }
+        }
+        if (j == n) {
+            bin[i] = capacity - sorted[i];
+        }
+    }
+
+    printf("\n--- First Fit Decreasing ---\n");
+    printBins(bin, n);
+}
+
+// ---------------- MAIN FUNCTION ----------------
+int main() {
+    int items[MAX], n, capacity, i;
+
+    printf("Enter number of items: ");
+    scanf("%d", &n);
+
+    printf("Enter weights of items:\n");
+    for (i = 0; i < n; i++) {
+        scanf("%d", &items[i]);
+    }
+
+    printf("Enter bin capacity: ");
+    scanf("%d", &capacity);
+
+    firstFit(items, n, capacity);
+    bestFit(items, n, capacity);
+    firstFitDecreasing(items, n, capacity);
+
+    return 0;
+}
