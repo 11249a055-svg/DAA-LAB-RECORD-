@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <limits.h>
+#include <stdbool.h>
+
+#define V 6  // Number of vertices
+
+// Function to find the vertex with the minimum distance
+int min_dist(int dist[], bool visited[]) {
+    int minimum = INT_MAX;
+    int ind = -1;  // Return -1 if no unvisited vertex is found with a minimum distance.
+
+    int i;  // Declare loop variable outside of the loop
+    for (i = 0; i < V; i++) {
+        if (!visited[i] && dist[i] <= minimum) {
+            minimum = dist[i];
+            ind = i;
+        }
+    }
+    return ind;  // If no unvisited vertex with a valid distance, return -1.
+}
+
+// Function to perform the Greedy Dijkstra algorithm
+void greedy_dijkstra(int graph[V][V], int src) {
+    int dist[V];       // Array to store the minimum distance from the source
+    bool visited[V];   // Array to mark visited vertices
+
+    int i, j;  // Declare loop variables before usage
+
+    // Initialize the distance array to infinity and visited array to false
+    for (i = 0; i < V; i++) {
+        dist[i] = INT_MAX;
+        visited[i] = false;
+    }
+
+    // Distance to the source itself is 0
+    dist[src] = 0;
+
+    // Main loop for finding the shortest path
+    for (i = 0; i < V - 1; i++) {
+        int m = min_dist(dist, visited);  // Get the vertex with the minimum distance
+        if (m == -1) {
+            break;  // No unvisited vertex with a valid distance (early termination)
+        }
+
+        visited[m] = true;  // Mark the selected vertex as visited
+
+        // Update the distance to adjacent vertices of the selected vertex
+        for (j = 0; j < V; j++) {
+            if (!visited[j] && graph[m][j] != 0 && dist[m] != INT_MAX &&
+                dist[m] + graph[m][j] < dist[j]) {
+                dist[j] = dist[m] + graph[m][j];  // Update the distance
+            }
+        }
+    }
+
+    // Print the result: the shortest distances from the source vertex
+    printf("Vertex\tDistance from Source\n");
+    for (i = 0; i < V; i++) {
+        printf("%c\t%d\n", 'A' + i, dist[i]);
+    }
+}
+
+int main() {
+    // Define the graph as an adjacency matrix
+    int graph[V][V] = {
+        {0, 1, 2, 0, 0, 0},
+        {1, 0, 0, 5, 1, 0},
+        {2, 0, 0, 2, 3, 0},
+        {0, 5, 2, 0, 2, 2},
+        {0, 1, 3, 2, 0, 1},
+        {0, 0, 0, 2, 1, 0}
+    };
+
+    // Call the Dijkstra function starting from vertex 0 (A)
+    greedy_dijkstra(graph, 0);
+
+    return 0;
+}
