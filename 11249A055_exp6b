@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#define MAX_VERTICES 6
+
+// Adjacency matrix representing the graph
+int graph[MAX_VERTICES][MAX_VERTICES] = {
+    {0, 10, 0, 15, 0, 0},
+    {0, 0, 0, 5, 10, 0},
+    {0, 0, 0, 0, 0, 10},
+    {0, 0, 0, 0, 0, 5},
+    {0, 0, 0, 0, 0, 10},
+    {0, 0, 0, 0, 0, 0}
+};
+
+// Bellman-Ford Algorithm to find the shortest path
+void bellman_ford(int source) {
+    int distance[MAX_VERTICES];
+    int i, u, v;
+
+    // Initialize distances
+    for (i = 0; i < MAX_VERTICES; i++) {
+        distance[i] = INT_MAX; // Set all distances to infinity initially
+    }
+    distance[source] = 0; // Distance to source is 0
+
+    // Relax all edges (MAX_VERTICES - 1) times
+    for (i = 0; i < MAX_VERTICES - 1; i++) {
+        for (u = 0; u < MAX_VERTICES; u++) {
+            for (v = 0; v < MAX_VERTICES; v++) {
+                // Check if there is an edge between u and v and if relaxing is possible
+                if (graph[u][v] != 0 && distance[u] != INT_MAX && distance[u] + graph[u][v] < distance[v]) {
+                    distance[v] = distance[u] + graph[u][v];
+                }
+            }
+        }
+    }
+
+    // Check for negative weight cycles
+    for (u = 0; u < MAX_VERTICES; u++) {
+        for (v = 0; v < MAX_VERTICES; v++) {
+            if (graph[u][v] != 0 && distance[u] != INT_MAX && distance[u] + graph[u][v] < distance[v]) {
+                printf("Graph contains negative weight cycle\n");
+                return;
+            }
+        }
+    }
+
+    // Print the shortest distance from the source to all vertices
+    printf("Vertex Distance from Source\n");
+    for (i = 0; i < MAX_VERTICES; i++) {
+        if (distance[i] == INT_MAX) {
+            printf("%d \t\t INF\n", i); // If no path exists
+        } else {
+            printf("%d \t\t %d\n", i, distance[i]); // Print distance
+        }
+    }
+}
+
+int main() {
+    bellman_ford(0);  // Call Bellman-Ford from source vertex 0
+    return 0;
+}
