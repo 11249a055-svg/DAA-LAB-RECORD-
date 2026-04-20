@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define E 5   // number of edges
+#define V 4   // number of vertices
+
+// Comparator function for qsort
+int comparator(const void *p1, const void *p2)
+{
+    int *a = (int *)p1;
+    int *b = (int *)p2;
+    return a[2] - b[2];   // compare weights
+}
+
+// Initialize parent and rank
+void makeSet(int parent[], int rank[])
+{
+    int i;
+    for (i = 0; i < V; i++) {
+        parent[i] = i;
+        rank[i] = 0;
+    }
+}
+
+// Find parent (with path compression)
+int findParent(int parent[], int component)
+{
+    if (parent[component] == component)
+        return component;
+
+    return parent[component] = findParent(parent, parent[component]);
+}
+
+// Union of two sets
+void unionSet(int u, int v, int parent[], int rank[])
+{
+    if (rank[u] < rank[v]) {
+        parent[u] = v;
+    }
+    else if (rank[u] > rank[v]) {
+        parent[v] = u;
+    }
+    else {
+        parent[v] = u;
+        rank[u]++;
+    }
+}
+
+// Kruskal Algorithm
+int kruskalAlgo(int edge[E][3])
+{
+    qsort(edge, E, sizeof(edge[0]), comparator);
+
+    int parent[V];
+    int rank[V];
+
+    makeSet(parent, rank);
+
+    int minCost = 0;
+    int i;
+
+    for (i = 0; i < E; i++) {
+        int u = findParent(parent, edge[i][0]);
+        int v = findParent(parent, edge[i][1]);
+        int wt = edge[i][2];
+
+        if (u != v) {
+            unionSet(u, v, parent, rank);
+            minCost += wt;
+        }
+    }
+
+    return minCost;
+}
+
+// Main function
+int main()
+{
+    int edge[E][3] = {
+        {0, 1, 10},
+        {0, 2, 6},
+        {0, 3, 5},
+        {1, 3, 15},
+        {2, 3, 4}
+    };
+
+    printf("Minimum Cost: %d", kruskalAlgo(edge));
+
+    return 0;
+}
